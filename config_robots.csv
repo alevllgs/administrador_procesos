@@ -1,0 +1,7 @@
+id,nombre,descripcion,ruta_server,entry,comando,heartbeat,log_patron,horario,activo
+robot_bot_produccion,REM Produccion (ETL),Extraccion 14 series + SFTP,C:/robot_bot_produccion,run_robot.bat,cmd /c,logs/robot_*.log,logs/robot_*.log,Lun-Vie 06:00,TRUE
+robot_urgencia,Datos Urgencia,Descarga ZIP + carga SQL + revision,C:/robot_urgencia,ejecutar_robot.bat,cmd /c,ultima_ejecucion.txt,atenciones_urgencia.log,Diario 10:00,TRUE
+robot_webscraping_urgencia,Webscraping Urgencia,Scraping + carga SQL + correo,C:/robot_webscraping_urgencia,run_webscraping.bat,cmd /c,00_webscraping.log,00_webscraping.log,Diario 11:30,TRUE
+robot_revisor_datos_a_power_BI,Revisor Datos Power BI,Parches + espera 4h + correo,C:/robot_revisor_datos_a_power_BI,main_orquestador.R,Rscript,main_orquestador.log,main_orquestador.log,Lun-Vie 04:00,TRUE
+robot_SFPT_DEIS,SFPT DEIS (Influenza/COVID/VRS),Pipeline R + espera + correo,C:/robot_SFPT_DEIS,run_proceso_completo.bat,cmd /c,logs/ejecucion_completa.log,logs/ejecucion_completa.log,Lun 05:00,TRUE
+robot_rem,REM (copia webscraping),Duplicado de robot_webscraping_urgencia,C:/robot_webscraping_urgencia,run_webscraping.bat,cmd /c,00_webscraping.log,00_webscraping.log,Diario 11:30,FALSE

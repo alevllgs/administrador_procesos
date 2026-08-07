@@ -1,0 +1,7 @@
+.env
+users.csv
+.Rhistory
+.RData
+.Rproj.user/
+run_logs/
+*.pid
