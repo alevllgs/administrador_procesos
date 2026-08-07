@@ -143,8 +143,10 @@ Regla: en los `.bat` que la plataforma va a ejecutar, reemplazar `timeout` por:
 ```
 ping -n <segundos+1> 127.0.0.1 > nul
 ```
-Ejemplo: 30 minutos -> `ping -n 1801 127.0.0.1 > nul`.
+Ejemplo: 3 horas -> `ping -n 10801 127.0.0.1 > nul`.
 
 Se corrigio en:
 - `robot_SFPT_DEIS\run_proceso_completo.bat` (espera 3 horas -> ping 10801)
-- `robot_urgencia\ejecutar_robot.bat` (reintentos 30 min -> ping 1801)
+
+> Nota: si un robot funciona bien desde la plataforma, NO cambiar su `.bat`.
+> Solo corregir los que fallan al ser lanzados sin consola.
