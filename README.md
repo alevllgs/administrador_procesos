@@ -131,3 +131,20 @@ La salida del arranque silencioso se registra en `run_logs/admin.log`
   para poder detener el proceso si la app se reinicia.
 - La app se debe lanzar SIEMPRE con la cuenta que tiene permisos para correr
   los robots.
+
+## IMPORTANTE: los .bat de los robots NO deben usar `timeout`
+
+Cuando la plataforma lanza un `.bat` con `cmd /c` (oculto, sin consola), el
+comando `timeout /t X` de Windows falla con
+`"Input redirection is not supported"` y **aborta el script** (o salta la
+espera). Las tareas de Windows si abren consola, por eso alli funciona.
+
+Regla: en los `.bat` que la plataforma va a ejecutar, reemplazar `timeout` por:
+```
+ping -n <segundos+1> 127.0.0.1 > nul
+```
+Ejemplo: 30 minutos -> `ping -n 1801 127.0.0.1 > nul`.
+
+Se corrigio en:
+- `robot_SFPT_DEIS\run_proceso_completo.bat` (espera 3 horas -> ping 10801)
+- `robot_urgencia\ejecutar_robot.bat` (reintentos 30 min -> ping 1801)
