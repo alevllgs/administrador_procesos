@@ -64,51 +64,98 @@ server <- function(input, output, session) {
       # Vista PRINCIPAL (dashboard)
       # -----------------------------------------------------------------
       navbarPage(
-        title = "Administrador de Procesos",
+        title = div(class = "brand-title", span(class = "brand-mark", "R"),
+                     span("Administrador de Procesos")),
         windowTitle = "Administrador de Procesos",
+        header = tags$head(
+          tags$style(HTML("
+            html, body { width:100%; min-height:100%; margin:0; background:#f4f7fb; }
+            .navbarPage { min-height:100vh; }
+            .navbarPage > .container-fluid { width:100%; max-width:none; padding:0 28px 28px; }
+            .navbar-default { background:#102a43; border:0; border-radius:0; box-shadow:0 3px 14px rgba(16,42,67,.18); }
+            .navbar-default .navbar-brand, .navbar-default .navbar-nav > li > a { color:#d9e8f5; }
+            .navbar-default .navbar-nav > .active > a, .navbar-default .navbar-nav > .active > a:hover { color:#fff; background:#1f4e79; }
+            .brand-title { display:flex; align-items:center; gap:10px; color:#fff; font-weight:700; letter-spacing:.1px; }
+            .brand-mark { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:9px; background:#47d7ac; color:#102a43; font-weight:900; }
+            .dashboard-header { display:flex; align-items:center; justify-content:space-between; gap:18px; padding:26px 4px 20px; }
+            .dashboard-kicker { margin:0 0 5px; color:#6b7c93; font-size:12px; font-weight:700; letter-spacing:1.3px; text-transform:uppercase; }
+            .dashboard-title { margin:0; color:#102a43; font-size:28px; font-weight:800; }
+            .dashboard-subtitle { margin:7px 0 0; color:#627d98; font-size:14px; }
+            .dashboard-actions { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+            .dashboard-actions .btn { border-radius:9px; border:0; padding:9px 14px; font-weight:700; box-shadow:0 2px 7px rgba(16,42,67,.10); }
+            .btn-refresh { background:#f0b429; color:#102a43; }
+            .btn-refresh:hover { background:#d99f20; color:#102a43; }
+            .btn-logout { background:#fff; color:#486581; }
+            .process-card, .log-card { background:#fff; border:1px solid #e1e8f0; border-radius:16px; box-shadow:0 8px 24px rgba(16,42,67,.07); padding:18px; }
+            .process-card { overflow:hidden; }
+            .section-title { margin:0 0 14px; color:#243b53; font-size:17px; font-weight:800; }
+            .table-responsive { border:0; }
+            table.dataTable thead th { background:#f7f9fc; color:#486581; border-bottom:1px solid #d9e2ec !important; font-size:12px; text-transform:uppercase; letter-spacing:.35px; }
+            table.dataTable tbody td { vertical-align:middle; color:#334e68; border-top:1px solid #eef2f6; }
+            table.dataTable tbody tr:hover { background:#f7fbff !important; }
+            .badge { border-radius:999px; padding:6px 10px; font-size:11px; letter-spacing:.25px; }
+            .log-card { margin-top:20px; }
+            .log-toolbar { display:flex; align-items:end; gap:12px; flex-wrap:wrap; }
+            .log-toolbar .form-group { margin-bottom:0; min-width:250px; flex:1; }
+            .log-toolbar .btn { border:0; border-radius:9px; font-weight:700; }
+            #visor_log { min-height:180px; max-height:430px; margin:16px 0 0; border:0; border-radius:10px; background:#102a43 !important; color:#d9e8f5 !important; box-shadow:inset 0 0 0 1px rgba(255,255,255,.06); }
+            .dataTables_wrapper .dataTables_filter input, .dataTables_wrapper .dataTables_length select { border:1px solid #d9e2ec; border-radius:7px; padding:5px 8px; background:#fff; }
+            @media (max-width:768px) {
+              .navbarPage > .container-fluid { padding:0 12px 18px; }
+              .dashboard-header { align-items:flex-start; flex-direction:column; padding-top:20px; }
+              .dashboard-title { font-size:23px; }
+              .dashboard-actions { width:100%; }
+              .dashboard-actions .btn { flex:1; }
+              .process-card, .log-card { padding:12px; border-radius:12px; }
+            }
+          ")),
+          tags$script(HTML("
+            function ajustarDashboard(){
+              $(window).trigger('resize');
+              setTimeout(function(){
+                $('table.dataTable').each(function(){
+                  if ($.fn.DataTable.isDataTable(this)) $(this).DataTable().columns.adjust();
+                });
+              }, 120);
+            }
+            $(document).on('shiny:connected', function(){ setTimeout(ajustarDashboard, 150); });
+            $(document).on('shiny:value', function(e){
+              if (e.name === 'tabla_robots') setTimeout(ajustarDashboard, 80);
+            });
+          "))
+        ),
         tabPanel(
           "Procesos",
-          fluidRow(
-            column(12,
-              h4(HTML(paste0("Usuario: <b>", auth$usuario, "</b>")),
-                 style = "float:right;margin-top:8px;"),
-              actionButton("btn_refresh_all", "Actualizar todo",
-                           class = "btn-warning btn-sm", style = "float:right;margin-right:8px;margin-top:8px;"),
-              actionButton("btn_logout", "Cerrar sesion",
-                           class = "btn-default btn-sm", style = "float:right;margin-right:8px;margin-top:8px;")
-            )
+          div(class = "dashboard-header",
+            div(
+              p(class = "dashboard-kicker", "Centro de control"),
+              h1(class = "dashboard-title", "Procesos del servidor"),
+              p(class = "dashboard-subtitle", "Ejecuta, detiene y revisa tus robots desde un solo lugar.")),
+            div(class = "dashboard-actions",
+              span(class = "text-muted", style = "font-size:13px;", HTML(paste0("Usuario: <b>", auth$usuario, "</b>"))),
+              actionButton("btn_refresh_all", "Actualizar todo", class = "btn-refresh"),
+              actionButton("btn_logout", "Cerrar sesion", class = "btn-logout"))
           ),
-          br(),
-          fluidRow(
-            column(12,
-              DTOutput("tabla_robots")
-            )
+          div(class = "process-card",
+            h2(class = "section-title", "Estado de los robots"),
+            DTOutput("tabla_robots")
           ),
-          hr(),
-          fluidRow(
-            column(12,
-              h4("Visor de logs"),
-              fluidRow(
-                column(4, selectInput("sel_log", "Proceso:", choices = NULL, width = "100%")),
-                column(2, br(), actionButton("btn_refresh_log", "Actualizar", class = "btn-info btn-sm")),
-                column(6, br(), textOutput("txt_log_info"))
-              ),
-              pre(
-                id = "visor_log",
-                style = "max-height:400px;overflow:auto;background:#1e1e1e;color:#d4d4d4;padding:10px;font-size:12px;white-space:pre-wrap;",
-                textOutput("log_content")
-              )
-            )
+          div(class = "log-card",
+            h2(class = "section-title", "Visor de logs"),
+            div(class = "log-toolbar",
+              selectInput("sel_log", "Proceso:", choices = NULL, width = "100%"),
+              actionButton("btn_refresh_log", "Actualizar log", class = "btn-info"),
+              textOutput("txt_log_info")),
+            pre(id = "visor_log", textOutput("log_content"))
           )
         ),
         tabPanel(
           "Historial",
-          fluidRow(
-            column(12,
-              h4("Historial de ejecuciones manuales"),
-              DTOutput("tabla_historial")
-            )
-          )
+          div(class = "dashboard-header",
+            div(p(class = "dashboard-kicker", "Auditoria"),
+                h1(class = "dashboard-title", "Historial de ejecuciones"),
+                p(class = "dashboard-subtitle", "Registro de acciones manuales realizadas desde la plataforma."))),
+          div(class = "process-card", DTOutput("tabla_historial"))
         )
       )
     }

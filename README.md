@@ -117,6 +117,9 @@ La salida del arranque silencioso se registra en `run_logs/admin.log`
   visor) para refrescar el log. **No hay auto-refresh**.
 - **Actualizar todo**: botón naranja arriba a la derecha que refresca la tabla
   de estados y los logs de una vez.
+- La interfaz usa un dashboard responsive de ancho completo, con tabla y visor
+  de logs adaptables a escritorio y móvil. El ajuste inicial de ancho se fuerza
+  al conectar para evitar que la primera carga aparezca pequeña.
 - **Historial**: registro de ejecuciones manuales (quien, cuando, que pid).
 - Los estados se actualizan **solo al presionar** "Actualizar todo" (o al
   ejecutar/detener un proceso). No hay polling automático: esto evita que la
