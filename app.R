@@ -100,6 +100,7 @@ server <- function(input, output, session) {
             .log-toolbar .btn { border:0; border-radius:9px; font-weight:700; }
             #visor_log { min-height:180px; max-height:430px; margin:16px 0 0; border:0; border-radius:10px; background:#102a43 !important; color:#d9e8f5 !important; box-shadow:inset 0 0 0 1px rgba(255,255,255,.06); }
             .dataTables_wrapper .dataTables_filter input, .dataTables_wrapper .dataTables_length select { border:1px solid #d9e2ec; border-radius:7px; padding:5px 8px; background:#fff; }
+            #tabla_robots, #tabla_robots .dataTables_wrapper, #tabla_robots table.dataTable { width:100% !important; }
             @media (max-width:768px) {
               .navbarPage > .container-fluid { padding:0 12px 18px; }
               .dashboard-header { align-items:flex-start; flex-direction:column; padding-top:20px; }
@@ -111,17 +112,22 @@ server <- function(input, output, session) {
           ")),
           tags$script(HTML("
             function ajustarDashboard(){
+              var tabla = $('#tabla_robots table.dataTable');
               $(window).trigger('resize');
-              setTimeout(function(){
-                $('table.dataTable').each(function(){
-                  if ($.fn.DataTable.isDataTable(this)) $(this).DataTable().columns.adjust();
-                });
-              }, 120);
+              if (tabla.length && $.fn.DataTable.isDataTable(tabla[0])) {
+                tabla.DataTable().columns.adjust().draw(false);
+                tabla.css('width', '100%');
+              }
             }
-            $(document).on('shiny:connected', function(){ setTimeout(ajustarDashboard, 150); });
+            function ajustarVariasVeces(){
+              [0, 150, 500, 1000, 2000].forEach(function(ms){ setTimeout(ajustarDashboard, ms); });
+            }
+            $(document).on('shiny:connected', ajustarVariasVeces);
             $(document).on('shiny:value', function(e){
-              if (e.name === 'tabla_robots') setTimeout(ajustarDashboard, 80);
+              if (e.name === 'tabla_robots') ajustarVariasVeces();
             });
+            $(document).on('shown.bs.tab', function(){ ajustarVariasVeces(); });
+            $(window).on('resize orientationchange', function(){ setTimeout(ajustarDashboard, 80); });
           "))
         ),
         tabPanel(
@@ -138,7 +144,7 @@ server <- function(input, output, session) {
           ),
           div(class = "process-card",
             h2(class = "section-title", "Estado de los robots"),
-            DTOutput("tabla_robots")
+            DTOutput("tabla_robots", width = "100%")
           ),
           div(class = "log-card",
             h2(class = "section-title", "Visor de logs"),
@@ -279,7 +285,7 @@ server <- function(input, output, session) {
       options = list(
         pageLength = 10,
         dom = "ftp",
-        autoWidth = TRUE,
+        autoWidth = FALSE,
         columnDefs = list(list(width = "220px", targets = 5))
       )
     ) |> formatStyle(0, backgroundColor = "#ffffff")
